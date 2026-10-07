@@ -1,0 +1,19 @@
+{
+  "services": {
+    "log_material": {
+      "service": "mdi:leaf"
+    },
+    "log_observation": {
+      "service": "mdi:eye"
+    },
+    "log_intervention": {
+      "service": "mdi:hammer-wrench"
+    },
+    "start_cycle": {
+      "service": "mdi:play-circle"
+    },
+    "complete_cycle": {
+      "service": "mdi:check-circle-outline"
+    }
+  }
+}

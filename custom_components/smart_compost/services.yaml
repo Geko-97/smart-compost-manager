@@ -1,0 +1,138 @@
+# Service actions of Smart Compost Manager.
+# Names and descriptions live in translations (strings.json / translations/en.json).
+
+log_material:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: smart_compost
+    material_type:
+      required: true
+      example: food_scraps
+      selector:
+        text:
+    quantity:
+      example: 2
+      selector:
+        number:
+          min: 0
+          max: 100000
+          mode: box
+    quantity_unit:
+      example: bucket
+      selector:
+        text:
+    quantity_precision:
+      selector:
+        select:
+          translation_key: quantity_precision
+          options:
+            - exact
+            - approximate
+            - qualitative
+    notes:
+      selector:
+        text:
+          multiline: true
+
+log_observation:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: smart_compost
+    category:
+      required: true
+      selector:
+        select:
+          translation_key: observation_category
+          options:
+            - moisture
+            - odor
+            - pests
+            - structure
+            - appearance
+            - activity
+    value:
+      required: true
+      example: damp
+      selector:
+        text:
+    notes:
+      selector:
+        text:
+          multiline: true
+
+log_intervention:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: smart_compost
+    type:
+      required: true
+      selector:
+        select:
+          translation_key: intervention_type
+          options:
+            - watering
+            - turning
+            - aeration
+            - green_addition
+            - brown_addition
+            - correction
+            - other
+    duration_minutes:
+      example: 15
+      selector:
+        number:
+          min: 0
+          max: 1440
+          mode: box
+    notes:
+      selector:
+        text:
+          multiline: true
+
+start_cycle:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: smart_compost
+    notes:
+      selector:
+        text:
+          multiline: true
+
+complete_cycle:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: smart_compost
+    output_quantity:
+      example: 40
+      selector:
+        number:
+          min: 0
+          max: 100000
+          mode: box
+    output_unit:
+      example: litre
+      selector:
+        text:
+    output_destination:
+      example: raised_bed
+      selector:
+        text:
+    output_notes:
+      selector:
+        text:
+          multiline: true

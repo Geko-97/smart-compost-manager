@@ -1,0 +1,411 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a compost bin",
+        "description": "Tell Smart Compost Manager about your compost bin.\n\nPhysical sensors are **optional**: the coach works without them, using your materials, observations and interventions. Sensors can be connected later.",
+        "data": {
+          "name": "Name",
+          "compost_type": "Compost type",
+          "method": "Composting method"
+        },
+        "data_description": {
+          "name": "How you call this compost bin.",
+          "compost_type": "The kind of container or pile you use.",
+          "method": "Keep adding material to the same bin (continuous), or manage separate batches (batch)."
+        }
+      },
+      "environment": {
+        "title": "Environment",
+        "description": "Where does this compost bin live? Defaults are safe: unknown values stay **unknown** and are never guessed.",
+        "data": {
+          "location": "Location",
+          "shelter": "Shelter",
+          "rain_exposure": "Rain exposure",
+          "sun_exposure": "Sun exposure"
+        },
+        "data_description": {
+          "location": "Indoor or outdoor.",
+          "shelter": "How protected the bin is from the weather.",
+          "rain_exposure": "How much rain reaches the material.",
+          "sun_exposure": "How much direct sun the bin gets."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Sensors",
+        "description": "Optionally bind sensors that already exist in Home Assistant. Smart Compost Manager only reads them — it never creates physical sensor copies — and stops using them when they become stale or unavailable.",
+        "data": {
+          "temperature_entity": "Internal compost temperature",
+          "moisture_entity": "Internal compost moisture",
+          "voc_entity": "Total VOC",
+          "ammonia_entity": "Ammonia",
+          "fill_entity": "Fill level",
+          "notification_categories": "Built-in notifications"
+        },
+        "data_description": {
+          "temperature_entity": "Must measure inside the compost pile, not the ambient air.",
+          "moisture_entity": "Must measure moisture inside the compost material.",
+          "voc_entity": "Optional gas sensor in a concentration unit (ppb, ppm or µg/m³). An index or unknown scale supports no conclusion.",
+          "ammonia_entity": "Optional ammonia sensor in a concentration unit (ppb, ppm or µg/m³). Used only to corroborate a nitrogen excess.",
+          "fill_entity": "Optional fill sensor reporting percent of capacity (%). Used only to corroborate that the bin is nearly full.",
+          "notification_categories": "Which notifications Home Assistant shows as persistent notifications for this bin. Events are always fired on the event bus for your own automations."
+        },
+        "error": {
+          "same_sensor": "The same physical sensor cannot feed more than one input: bind each sensor to exactly one measurement."
+        }
+      }
+    }
+  },
+  "selector": {
+    "compost_type": {
+      "options": {
+        "enclosed_bin": "Enclosed bin",
+        "tumbler": "Tumbler",
+        "open_pile": "Open pile",
+        "garden_compost": "Garden compost",
+        "other": "Other"
+      }
+    },
+    "compost_method": {
+      "options": {
+        "continuous": "Continuous (keep adding material)",
+        "batch": "Batch (separate batches)"
+      }
+    },
+    "location": {
+      "options": {
+        "indoor": "Indoor",
+        "outdoor": "Outdoor",
+        "unknown": "Unknown"
+      }
+    },
+    "shelter": {
+      "options": {
+        "sheltered": "Sheltered",
+        "semi_sheltered": "Semi-sheltered",
+        "exposed": "Exposed",
+        "unknown": "Unknown"
+      }
+    },
+    "rain_exposure": {
+      "options": {
+        "none": "Protected from rain",
+        "partial": "Partially exposed",
+        "exposed": "Exposed",
+        "unknown": "Unknown"
+      }
+    },
+    "sun_exposure": {
+      "options": {
+        "shade": "Shade",
+        "partial": "Partial sun",
+        "full_sun": "Full sun",
+        "unknown": "Unknown"
+      }
+    },
+    "quantity_precision": {
+      "options": {
+        "exact": "Exact",
+        "approximate": "Approximate",
+        "qualitative": "Qualitative"
+      }
+    },
+    "observation_category": {
+      "options": {
+        "moisture": "Moisture",
+        "odor": "Odor",
+        "pests": "Pests",
+        "structure": "Structure",
+        "appearance": "Appearance",
+        "activity": "Activity"
+      }
+    },
+    "intervention_type": {
+      "options": {
+        "watering": "Watering",
+        "turning": "Turning",
+        "aeration": "Aeration",
+        "green_addition": "Green addition",
+        "brown_addition": "Brown addition",
+        "correction": "Correction",
+        "other": "Other"
+      }
+    },
+    "notification_category": {
+      "options": {
+        "phase": "Phase changed",
+        "thermophilic": "Thermophilic detected",
+        "health": "Health changed",
+        "rapid_heating": "Rapid heating",
+        "rapid_cooling": "Rapid cooling",
+        "moisture": "Moisture issue",
+        "aeration": "Aeration issue",
+        "balance": "Material imbalance",
+        "cycle": "New cycle",
+        "cycle_completed": "Cycle completed",
+        "maturity": "Maturity updated",
+        "sensor": "Temperature sensor"
+      }
+    }
+  },
+  "services": {
+    "log_material": {
+      "name": "Log material addition",
+      "description": "Record material added to a compost bin; the assessment is recalculated immediately.",
+      "fields": {
+        "device_id": {
+          "name": "Compost bin",
+          "description": "The compost bin to log the material for."
+        },
+        "material_type": {
+          "name": "Material",
+          "description": "What was added, for example food_scraps, leaves, cardboard."
+        },
+        "quantity": {
+          "name": "Quantity",
+          "description": "How much was added. Omit to log a qualitative entry instead."
+        },
+        "quantity_unit": {
+          "name": "Unit",
+          "description": "Unit of the quantity, for example bucket, litre, kg."
+        },
+        "quantity_precision": {
+          "name": "Precision",
+          "description": "How precise the quantity is. Defaults to approximate when a quantity is given, qualitative otherwise."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional free-form notes."
+        }
+      }
+    },
+    "log_observation": {
+      "name": "Log observation",
+      "description": "Record something you noticed at the bin: moisture, odor, pests, structure, appearance, activity.",
+      "fields": {
+        "device_id": {
+          "name": "Compost bin",
+          "description": "The compost bin this observation is about."
+        },
+        "category": {
+          "name": "Category",
+          "description": "What the observation is about."
+        },
+        "value": {
+          "name": "Observation",
+          "description": "What you noticed, for example damp, sour smell, no larvae."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional free-form notes."
+        }
+      }
+    },
+    "log_intervention": {
+      "name": "Log intervention",
+      "description": "Record an action you performed (watering, turning, aeration, corrections), so later changes can be checked against it.",
+      "fields": {
+        "device_id": {
+          "name": "Compost bin",
+          "description": "The compost bin this intervention was performed on."
+        },
+        "type": {
+          "name": "Action",
+          "description": "What you did."
+        },
+        "duration_minutes": {
+          "name": "Duration",
+          "description": "How long it took, in minutes."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional free-form notes."
+        }
+      }
+    },
+    "start_cycle": {
+      "name": "Start cycle",
+      "description": "Start a new batch cycle for this compost bin; the cycle report and any comparison are recalculated immediately.",
+      "fields": {
+        "device_id": {
+          "name": "Compost bin",
+          "description": "The compost bin whose cycle should start."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional free-form notes about how this cycle was started."
+        }
+      }
+    },
+    "complete_cycle": {
+      "name": "Complete cycle",
+      "description": "Complete the active batch cycle, optionally recording what it produced; the cycle report and any comparison are recalculated immediately.",
+      "fields": {
+        "device_id": {
+          "name": "Compost bin",
+          "description": "The compost bin whose active cycle should be completed."
+        },
+        "output_quantity": {
+          "name": "Output quantity",
+          "description": "How much the cycle produced. Omit if you did not measure it."
+        },
+        "output_unit": {
+          "name": "Output unit",
+          "description": "Unit of the produced quantity, for example litre, kg, bucket."
+        },
+        "output_destination": {
+          "name": "Destination",
+          "description": "Where the finished compost went, for example raised_bed, garden, storage."
+        },
+        "output_notes": {
+          "name": "Output notes",
+          "description": "Optional free-form notes about the produced compost."
+        }
+      }
+    }
+  },
+  "notification": {
+    "phase_changed": {
+      "title": "Compost phase changed",
+      "message": "The phase of {bin} is now {after}. Confidence: {confidence}%."
+    },
+    "thermophilic": {
+      "title": "Thermophilic phase detected",
+      "message": "The compost in {bin} is now in the thermophilic phase. Confidence: {confidence}%."
+    },
+    "health_degraded": {
+      "title": "Compost health degraded",
+      "message": "The health of {bin} dropped from {before} to {after}. Confidence: {confidence}%."
+    },
+    "health_recovered": {
+      "title": "Compost health recovered",
+      "message": "The health of {bin} improved from {before} to {after}. Confidence: {confidence}%."
+    },
+    "rapid_heating": {
+      "title": "Rapid heating detected",
+      "message": "The compost in {bin} is heating up fast. Confidence: {confidence}%."
+    },
+    "rapid_cooling": {
+      "title": "Rapid cooling detected",
+      "message": "The compost in {bin} is cooling down fast. Confidence: {confidence}%."
+    },
+    "moisture_too_dry": {
+      "title": "Compost may be too dry",
+      "message": "The internal moisture of {bin} reads too low. Suggested action: {action}. Confidence: {confidence}%."
+    },
+    "moisture_too_wet": {
+      "title": "Compost may be too wet",
+      "message": "The internal moisture of {bin} reads too high. Suggested action: {action}. Confidence: {confidence}%."
+    },
+    "aeration": {
+      "title": "Possible aeration issue",
+      "message": "Observed signals at {bin} suggest poor aeration. Suggested action: {action}. Confidence: {confidence}%."
+    },
+    "balance_greens": {
+      "title": "Possible material imbalance",
+      "message": "{bin} has too much green material relative to dry browns. Suggested action: {action}. Confidence: {confidence}%."
+    },
+    "balance_browns": {
+      "title": "Possible material imbalance",
+      "message": "{bin} has too much dry brown material relative to greens. Suggested action: {action}. Confidence: {confidence}%."
+    },
+    "cycle_started": {
+      "title": "New compost cycle",
+      "message": "A new cycle started at {bin}. Confidence: {confidence}%."
+    },
+    "cycle_completed": {
+      "title": "Compost cycle completed",
+      "message": "The active cycle of {bin} is complete. Confidence: {confidence}%."
+    },
+    "maturity_estimated": {
+      "title": "Compost maturity updated",
+      "message": "The compost of {bin} is now {after}. Confidence: {confidence}%."
+    },
+    "sensor_unavailable": {
+      "title": "Temperature sensor unavailable",
+      "message": "The temperature sensor of {bin} stopped reporting. Conclusions fall back to UNKNOWN until it returns."
+    },
+    "sensor_restored": {
+      "title": "Temperature sensor restored",
+      "message": "The temperature sensor of {bin} is reporting again."
+    },
+    "resolved": {
+      "title": "Issue resolved",
+      "message": "The {category} issue at {bin} is no longer detected. Confidence: {confidence}%."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Health"
+      },
+      "data_quality": {
+        "name": "Data quality"
+      },
+      "confidence": {
+        "name": "Confidence"
+      },
+      "priority_action": {
+        "name": "Priority action",
+        "state": {
+          "none": "Nothing to do",
+          "log_first_addition": "Log your first material addition",
+          "add_browns": "Add dry brown material",
+          "add_greens": "Add green material",
+          "improve_aeration": "Turn the compost to improve aeration",
+          "water_compost": "Water the compost"
+        }
+      },
+      "cycle_stage": {
+        "name": "Cycle stage",
+        "state": {
+          "new": "New",
+          "active": "Active",
+          "resting": "Resting",
+          "completed": "Completed"
+        }
+      },
+      "phase": {
+        "name": "Phase",
+        "state": {
+          "mesophilic": "Mesophilic",
+          "thermophilic": "Thermophilic",
+          "cooling": "Cooling",
+          "curing": "Curing"
+        }
+      },
+      "cycle_report": {
+        "name": "Cycle report"
+      },
+      "maturity": {
+        "name": "Maturity",
+        "state": {
+          "ready_for_curing": "Ready for curing",
+          "likely_mature": "Likely mature",
+          "likely_suitable_for_garden_use": "Likely suitable for garden use"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_entry_data": {
+      "message": "The stored configuration of this compost bin is invalid. Remove the bin and add it again."
+    },
+    "bin_not_found": {
+      "message": "Device {device_id} is not a configured Smart Compost Manager bin."
+    },
+    "bin_not_loaded": {
+      "message": "The compost bin {device_id} is not loaded yet. Try again once Home Assistant has finished starting up."
+    },
+    "cycle_already_active": {
+      "message": "Compost bin {bin_id} already has an active cycle. Complete it before starting a new one."
+    },
+    "no_active_cycle": {
+      "message": "Compost bin {bin_id} has no active cycle to complete."
+    }
+  }
+}
